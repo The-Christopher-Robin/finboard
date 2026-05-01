@@ -52,7 +52,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U finboard"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 5
@@ -79,6 +79,15 @@ jobs:
           PORT: '4000'
           WS_PORT: '4001'
         run: npx tsx src/index.ts &
+      - name: Start client dev server
+        working-directory: client
+        run: npx vite --port 3000 &
+        env:
+          VITE_API_URL: http://localhost:4000
+          VITE_WS_URL: ws://localhost:4001
+      - name: Wait for client
+        run: npx wait-on http://localhost:3000 --timeout 30000
+        working-directory: client
       - name: Run Cypress
         working-directory: client
         run: npx cypress run
