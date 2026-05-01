@@ -1,0 +1,43 @@
+CREATE TABLE IF NOT EXISTS stocks (
+  symbol VARCHAR(10) PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  sector VARCHAR(50) NOT NULL,
+  market_cap BIGINT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS watchlist (
+  id SERIAL PRIMARY KEY,
+  symbol VARCHAR(10) NOT NULL REFERENCES stocks(symbol) ON DELETE CASCADE,
+  added_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS portfolio (
+  id SERIAL PRIMARY KEY,
+  symbol VARCHAR(10) NOT NULL REFERENCES stocks(symbol) ON DELETE CASCADE,
+  shares NUMERIC NOT NULL,
+  avg_cost NUMERIC NOT NULL,
+  purchased_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS alerts (
+  id SERIAL PRIMARY KEY,
+  symbol VARCHAR(10) NOT NULL,
+  target_price NUMERIC NOT NULL,
+  direction VARCHAR(5) NOT NULL CHECK (direction IN ('above', 'below')),
+  triggered BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS price_history (
+  id SERIAL PRIMARY KEY,
+  symbol VARCHAR(10) NOT NULL,
+  timestamp TIMESTAMPTZ NOT NULL,
+  open NUMERIC NOT NULL,
+  high NUMERIC NOT NULL,
+  low NUMERIC NOT NULL,
+  close NUMERIC NOT NULL,
+  volume BIGINT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_price_history_symbol_ts
+  ON price_history(symbol, timestamp);
