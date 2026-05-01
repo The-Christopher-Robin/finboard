@@ -20,8 +20,7 @@ describe('Watchlist', () => {
   it('can remove a watchlist item', () => {
     cy.get('table tbody tr')
       .first()
-      .find('button')
-      .contains(/remove|delete|×/i)
+      .find('button[aria-label*="Remove"]')
       .should('exist');
   });
 });
